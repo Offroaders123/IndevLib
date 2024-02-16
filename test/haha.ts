@@ -6,8 +6,8 @@ import { Arrow, BlockResource, Painting, type Level, type LocalPlayer } from "./
 const path = new URL("./world/painting.mclevel",import.meta.url);
 const world = await read<Level>(await readFile(path));
 
-const player = world.data.Entities.find((entity): entity is LocalPlayer => entity.id === "LocalPlayer");
-console.log(player);
+// const player = world.data.Entities.find((entity): entity is LocalPlayer => entity.id === "LocalPlayer");
+// console.log(player);
 
 // if (player) player.Health = new Int16(500);
 
@@ -64,5 +64,13 @@ console.log(player);
 
 // console.log(new Set(world.data.Entities.filter(entity => "Air" in entity).map(entity => entity.id).sort()));
 // console.log(new Set(world.data.Entities.filter(entity => "Air" in entity && "Health" in entity).map(entity => entity.id).sort()));
+
+// for (const tile of world.data.TileEntities){
+//   // Checking to see if Lit Furnaces have a separate tile entity type; they don't
+//   if (!("BurnTime" in tile)) continue;
+//   console.log(tile);
+// }
+
+// console.log(new Set(world.data.Entities.map(entity => entity.id).sort()));
 
 // await writeFile(path,await write(world));
