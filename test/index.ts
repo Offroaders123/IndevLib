@@ -1,7 +1,7 @@
 import { Int16, Int8, read, write } from "nbtify";
 import { readFile, writeFile } from "node:fs/promises";
 
-import { Arrow, BlockResource, Painting, type Level, type LocalPlayer } from "./index.js";
+import { Arrow, BlockResource, Painting, type Level, type LocalPlayer } from "../src/index.js";
 
 const path = new URL("./world/painting.mclevel",import.meta.url);
 const world = await read<Level>(await readFile(path));
