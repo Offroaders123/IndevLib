@@ -1,4 +1,4 @@
-import type { ByteArrayTag, ByteTag, FloatTag, IntTag, LongTag, ShortTag, StringTag } from "nbtify";
+import type { BooleanTag, ByteArrayTag, ByteTag, FloatTag, IntTag, LongTag, ShortTag, StringTag } from "nbtify";
 
 // Level
 
@@ -108,7 +108,31 @@ export enum BlockResource {
 
 // Block Entity (Tile Entity)
 
-export interface BlockEntity {}
+export type BlockEntity<K extends keyof BlockEntityNameMap = keyof BlockEntityNameMap> = BlockEntityNameMap[K];
+
+export interface BlockEntityNameMap {
+  Chest: Chest;
+  Furnace: Furnace;
+}
+
+export interface Chest extends BlockEntityLike<BlockEntityResource.Chest> {
+  Items: SlottedItem[];
+}
+
+export interface Furnace extends BlockEntityLike<BlockEntityResource.Furnace> {
+  BurnTime: ShortTag;
+  CookTime: ShortTag;
+}
+
+export interface BlockEntityLike<BlockEntityID extends string> {
+  Pos: IntTag; // not a tuple, interestingly enough, just a composed int of some sort, I think you have to use math to get the actual coordinates out of the value
+  id: `${BlockEntityID}`;
+}
+
+export enum BlockEntityResource {
+  Chest = "Chest",
+  Furnace = "Furnace"
+}
 
 // Entity
 
@@ -122,46 +146,74 @@ export interface EntityNameMap {
   LocalPlayer: LocalPlayer;
   Painting: Painting;
   Pig: Pig;
+  PrimedTnt: PrimedTnt;
   Skeleton: Skeleton;
   Spider: Spider;
   Zombie: Zombie;
 }
 
-export interface Arrow extends EntityLike<EntityResource.Arrow> {}
-
-export interface Creeper extends EntityLike<EntityResource.Creeper> {}
-
-export interface Giant extends EntityLike<EntityResource.Giant> {}
-
-export interface ItemEntity extends EntityLike<EntityResource.Item> {}
-
-export interface LocalPlayer extends EntityLike<EntityResource.LocalPlayer> {
-  Score: IntTag;
-  Inventory: Item[];
+export interface Arrow extends EntityLike<EntityResource.Arrow> {
+  inGround: BooleanTag;
+  inTile: BooleanTag;
+  shake: BooleanTag;
+  xTile: ShortTag;
+  yTile: ShortTag;
+  zTile: ShortTag;
 }
 
-export interface Painting extends EntityLike<EntityResource.Painting> {}
+export interface Creeper extends EntityLike<EntityResource.Creeper>, MobLike {}
 
-export interface Pig extends EntityLike<EntityResource.Pig> {}
+export interface Giant extends EntityLike<EntityResource.Giant>, MobLike {}
 
-export interface Skeleton extends EntityLike<EntityResource.Skeleton> {}
+export interface ItemEntity extends EntityLike<EntityResource.Item> {
+  Age: ShortTag;
+  Item: Item;
+}
 
-export interface Spider extends EntityLike<EntityResource.Spider> {}
+export interface LocalPlayer extends EntityLike<EntityResource.LocalPlayer>, MobLike {
+  Score: IntTag;
+  Inventory: SlottedItem[];
+}
 
-export interface Zombie extends EntityLike<EntityResource.Zombie> {}
+// yeah weird that it's moblike, I know
+export interface Painting extends EntityLike<EntityResource.Painting>, Omit<MobLike, "Health"> {
+  Dir: ByteTag<PaintingDirection>;
+  Motive: PaintingVariant;
+  TileY: IntTag;
+  TileZ: IntTag;
+}
+
+export type PaintingDirection = 0 | 1 | 2 | 3;
+
+export type PaintingVariant = "Alban" | "Aztec" | "Aztec2" | "Bomb" | "Bust" | "Courbet" | "Kebab" | "Match" | "Plant" | "Pool" | "Sea" | "SkullAndRoses" | "Stage" | "Void" | "Wanderer" | "Wasteland";
+
+export interface Pig extends EntityLike<EntityResource.Pig>, MobLike {}
+
+export interface Skeleton extends EntityLike<EntityResource.Skeleton>, MobLike {}
+
+export interface Spider extends EntityLike<EntityResource.Spider>, MobLike {}
+
+export interface PrimedTnt extends EntityLike<EntityResource.PrimedTnt>, Omit<MobLike, "Health"> {
+  Fuse: ByteTag;
+}
+
+export interface Zombie extends EntityLike<EntityResource.Zombie>, MobLike {}
+
+export interface MobLike {
+  AttackTime: ShortTag;
+  DeathTime: ShortTag;
+  Health: ShortTag;
+  HurtTime: ShortTag;
+}
 
 export interface EntityLike<EntityID extends EntityResource> {
-  Motion: [FloatTag, FloatTag, FloatTag];
-  FallDistance: FloatTag;
-  Pos: [FloatTag, FloatTag, FloatTag];
-  Health: ShortTag;
-  DeathTime: ShortTag;
-  Fire: ShortTag;
-  id: `${EntityID}`;
   Air: ShortTag;
-  HurtTime: ShortTag;
+  FallDistance: FloatTag;
+  Fire: ShortTag;
+  Motion: [FloatTag, FloatTag, FloatTag];
+  Pos: [FloatTag, FloatTag, FloatTag];
   Rotation: [FloatTag, FloatTag];
-  AttackTime: ShortTag;
+  id: `${EntityID}`;
 }
 
 export enum EntityResource {
@@ -172,6 +224,7 @@ export enum EntityResource {
   LocalPlayer = "LocalPlayer",
   Painting = "Painting",
   Pig = "Pig",
+  PrimedTnt = "PrimedTnt",
   Skeleton = "Skeleton",
   Spider = "Spider",
   Zombie = "Zombie",
@@ -180,10 +233,13 @@ export enum EntityResource {
 // Item
 
 export interface Item {
-  Slot: ByteTag;
-  id: ShortTag<ItemResource>;
+  id: ShortTag<BlockResource | ItemResource>;
   Count: ByteTag;
   Damage: ShortTag;
+}
+
+export interface SlottedItem extends Item {
+  Slot: ByteTag;
 }
 
 export enum ItemResource {
